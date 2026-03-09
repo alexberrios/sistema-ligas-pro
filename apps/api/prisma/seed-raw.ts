@@ -3,7 +3,10 @@ import { Client } from 'pg';
 import "dotenv/config";
 
 async function main() {
-  const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:FJNzxppndsIrFpGvxPblkMpaWKevrGhU@metro.proxy.rlwy.net:22209/railway';
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+     console.warn('DATABASE_URL is not set!');
+  }
   const client = new Client({ connectionString });
   
   await client.connect();
