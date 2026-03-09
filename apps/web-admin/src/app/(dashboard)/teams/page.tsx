@@ -18,6 +18,12 @@ export default function TeamsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTeam, setNewTeam] = useState({ name: '', logo: '' });
 
+  // Assign Player States
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [selectedTeamForAssign, setSelectedTeamForAssign] = useState<Team | null>(null);
+  const [availablePlayers, setAvailablePlayers] = useState<any[]>([]);
+  const [assignPlayerForm, setAssignPlayerForm] = useState({ playerId: '', number: '', position: 'DELANTERO' });
+
   const fetchTeams = async () => {
     try {
       setIsLoading(true);
@@ -27,6 +33,42 @@ export default function TeamsPage() {
       toast.error(error.response?.data?.message || 'Error al cargar equipos');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchPlayers = async () => {
+    try {
+      const { data } = await api.players.findAll();
+      setAvailablePlayers(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const openAssignPlayerModal = (team: Team) => {
+    setSelectedTeamForAssign(team);
+    setIsAssignModalOpen(true);
+  };
+
+  const handleAssignPlayerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!assignPlayerForm.playerId || !selectedTeamForAssign) {
+      toast.error('Selecciona un jugador');
+      return;
+    }
+    
+    try {
+      await api.teams.assignPlayer(selectedTeamForAssign.id, {
+        playerId: assignPlayerForm.playerId,
+        number: Number(assignPlayerForm.number) || 0,
+        position: assignPlayerForm.position
+      });
+      toast.success('Jugador fichado exitosamente');
+      setIsAssignModalOpen(false);
+      setAssignPlayerForm({ playerId: '', number: '', position: 'DELANTERO' });
+      fetchTeams(); // Refresh to update player count
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Error al fichar jugador dplicado');
     }
   };
 
@@ -96,6 +138,7 @@ export default function TeamsPage() {
 
   useEffect(() => {
     fetchTeams();
+    fetchPlayers();
   }, []);
 
   return (
@@ -219,10 +262,77 @@ export default function TeamsPage() {
                   <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1 block">Jugadores</span>
                 </div>
               </div>
+
+              <div className="w-full px-6 pb-6 mt-4 z-10 relative">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openAssignPlayerModal(team);
+                  }}
+                  className="w-full py-2 bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all text-center flex justify-center items-center gap-2 shadow-lg rounded"
+                >
+                  Fichar Jugador
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Modal Fichar Jugador */}
+      <Modal isOpen={isAssignModalOpen} onClose={() => setIsAssignModalOpen(false)} title={`Fichar en ${selectedTeamForAssign?.name}`}>
+        <form onSubmit={handleAssignPlayerSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Buscar Jugador</label>
+            <select
+              value={assignPlayerForm.playerId}
+              onChange={(e) => setAssignPlayerForm({ ...assignPlayerForm, playerId: e.target.value })}
+              className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+            >
+              <option value="">-- Elige un Jugador Libre --</option>
+              {availablePlayers.map(p => (
+                <option key={p.id} value={p.id}>{p.firstName} {p.lastName} ({p.rut})</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1">Dorsal</label>
+              <input 
+                type="number"
+                min="1"
+                max="99"
+                value={assignPlayerForm.number}
+                onChange={(e) => setAssignPlayerForm({ ...assignPlayerForm, number: e.target.value })}
+                placeholder="Ej: 10"
+                className="w-full bg-slate-900 border border-slate-700 text-white rounded px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1">Posición</label>
+              <select
+                value={assignPlayerForm.position}
+                onChange={(e) => setAssignPlayerForm({ ...assignPlayerForm, position: e.target.value })}
+                className="w-full bg-slate-900 border border-slate-700 text-white rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              >
+                <option value="ARQUERO">Arquero</option>
+                <option value="DEFENSA">Defensa</option>
+                <option value="MEDIOCAMPISTA">Mediocampista</option>
+                <option value="DELANTERO">Delantero</option>
+              </select>
+            </div>
+          </div>
+          
+          <button 
+            type="submit" 
+            className="w-full py-3 mt-4 bg-gradient-to-r from-blue-600 to-emerald-500 hover:from-blue-500 hover:to-emerald-400 text-white rounded font-bold uppercase tracking-widest shadow-lg skew-card transition-all"
+          >
+            Confirmar Fichaje
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { TournamentsService } from './tournaments.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
+import { EnrollTeamDto } from './dto/enroll-team.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -41,5 +42,21 @@ export class TournamentsController {
   @Roles(Role.LEAGUE_ADMIN, Role.SUPERADMIN)
   remove(@Param('id') id: string, @CurrentUser() user: any) {
     return this.tournamentsService.remove(id, user.userId);
+  }
+
+  @Post(':id/teams')
+  @Roles(Role.LEAGUE_ADMIN, Role.SUPERADMIN)
+  enrollTeam(
+    @Param('id') tournamentId: string,
+    @Body() enrollTeamDto: EnrollTeamDto,
+    @CurrentUser() user: any
+  ) {
+    return this.tournamentsService.enrollTeam(tournamentId, enrollTeamDto, user.userId);
+  }
+
+  @Get(':id/teams')
+  @Roles(Role.LEAGUE_ADMIN, Role.SUPERADMIN)
+  getEnrolledTeams(@Param('id') tournamentId: string) {
+    return this.tournamentsService.getEnrolledTeams(tournamentId);
   }
 }

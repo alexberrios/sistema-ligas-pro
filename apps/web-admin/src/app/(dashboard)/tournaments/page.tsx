@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import { api, apiClient } from '@/lib/api';
 import toast from 'react-hot-toast';
 import { Modal } from '@/components/Modal';
 
@@ -21,6 +21,12 @@ export default function TournamentsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTournament, setNewTournament] = useState({ name: '', slug: '' });
+
+  // Roster states
+  const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
+  const [selectedTournamentForEnroll, setSelectedTournamentForEnroll] = useState<Tournament | null>(null);
+  const [availableTeams, setAvailableTeams] = useState<any[]>([]);
+  const [selectedTeamId, setSelectedTeamId] = useState('');
 
   const fetchTournaments = async () => {
     try {
@@ -53,7 +59,39 @@ export default function TournamentsPage() {
 
   useEffect(() => {
     fetchTournaments();
+    fetchTeams();
   }, []);
+
+  const fetchTeams = async () => {
+    try {
+      const { data } = await api.teams.findAll();
+      setAvailableTeams(data);
+    } catch(err) {
+      console.error(err);
+    }
+  };
+
+  const openEnrollModal = (tournament: Tournament) => {
+    setSelectedTournamentForEnroll(tournament);
+    setIsEnrollModalOpen(true);
+  };
+
+  const handleEnrollSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTeamId || !selectedTournamentForEnroll) {
+      toast.error('Seleccione un equipo');
+      return;
+    }
+    try {
+      await apiClient.post(`/tournaments/${selectedTournamentForEnroll.id}/teams`, { teamId: selectedTeamId });
+      toast.success('Equipo inscrito exitosamente');
+      setIsEnrollModalOpen(false);
+      setSelectedTeamId('');
+      fetchTournaments(); // Refresh to update numbers if possible
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Error al inscribir equipo (probablemente ya inscrito)');
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
@@ -168,21 +206,58 @@ export default function TournamentsPage() {
                   </div>
                 </div>
                 
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    router.push(`/tournaments/${tournament.id}/fixture`);
-                  }}
-                  className="w-full mt-6 py-3 bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 text-sm font-bold uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all text-center flex justify-center items-center gap-2 shadow-lg skew-card"
-                >
-                  Gestionar Competición
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                </button>
+                <div className="flex flex-col gap-2 mt-6">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/tournaments/${tournament.id}/fixture`);
+                    }}
+                    className="w-full py-3 bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 text-sm font-bold uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all text-center flex justify-center items-center gap-2 shadow-lg skew-card"
+                  >
+                    Gestionar Fixture
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEnrollModal(tournament);
+                    }}
+                    className="w-full py-2 bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all text-center flex justify-center items-center gap-2 shadow-lg"
+                  >
+                    Inscribir Clubes
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
+      {/* Modal Inscribir Club */}
+      <Modal isOpen={isEnrollModalOpen} onClose={() => setIsEnrollModalOpen(false)} title={`Inscribir Club en ${selectedTournamentForEnroll?.name}`}>
+        <form onSubmit={handleEnrollSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Seleccionar o Buscar Equipo</label>
+            <select
+              value={selectedTeamId}
+              onChange={(e) => setSelectedTeamId(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+            >
+              <option value="">-- Elige un Club --</option>
+              {availableTeams.map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+          </div>
+          
+          <button 
+            type="submit" 
+            className="w-full py-3 mt-4 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded font-bold uppercase tracking-widest shadow-lg skew-card transition-all"
+          >
+            Vincular Equipo
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 }

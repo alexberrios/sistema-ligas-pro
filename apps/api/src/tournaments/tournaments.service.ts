@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
+import { EnrollTeamDto } from './dto/enroll-team.dto';
 
 @Injectable()
 export class TournamentsService {
@@ -71,6 +72,33 @@ export class TournamentsService {
     
     return this.prisma.tournament.delete({
       where: { id },
+    });
+  }
+
+  async enrollTeam(tournamentId: string, enrollTeamDto: EnrollTeamDto, userId: string) {
+    await this.findOne(tournamentId, userId); // Validate tournament access
+
+    // Check if team belongs to same organization
+    const team = await this.prisma.team.findUnique({
+      where: { id: enrollTeamDto.teamId }
+    });
+
+    if (!team) throw new NotFoundException('Team not found');
+
+    return this.prisma.tournamentTeam.create({
+      data: {
+        tournamentId,
+        teamId: enrollTeamDto.teamId
+      }
+    });
+  }
+
+  async getEnrolledTeams(tournamentId: string) {
+    return this.prisma.tournamentTeam.findMany({
+      where: { tournamentId },
+      include: {
+        team: true
+      }
     });
   }
 }
