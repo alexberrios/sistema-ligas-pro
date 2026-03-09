@@ -8,10 +8,12 @@ import { AppService } from './app.service';
 import { TournamentsModule } from './tournaments/tournaments.module';
 import { TeamsModule } from './teams/teams.module';
 import { PlayersModule } from './players/players.module';
+import { MatchesModule } from './matches.module';
+import { MatchesController } from './matches.controller';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, OrganizationsModule, TournamentsModule, TeamsModule, PlayersModule],
-  controllers: [AppController],
+  imports: [PrismaModule, AuthModule, UsersModule, OrganizationsModule, TournamentsModule, TeamsModule, PlayersModule, MatchesModule],
+  controllers: [AppController, MatchesController],
   providers: [AppService],
 })
 export class AppModule {}

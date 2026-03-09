@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
 import { Modal } from '@/components/Modal';
@@ -15,6 +16,7 @@ interface Tournament {
 }
 
 export default function TournamentsPage() {
+  const router = useRouter();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -166,10 +168,16 @@ export default function TournamentsPage() {
                   </div>
                 </div>
                 
-                <div className="w-full mt-6 py-3 bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 text-sm font-bold uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all text-center flex justify-center items-center gap-2 shadow-lg skew-card">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/tournaments/${tournament.id}/fixture`);
+                  }}
+                  className="w-full mt-6 py-3 bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 text-sm font-bold uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all text-center flex justify-center items-center gap-2 shadow-lg skew-card"
+                >
                   Gestionar Competición
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                </div>
+                </button>
               </div>
             </div>
           ))}
