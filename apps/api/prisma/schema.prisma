@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  SUPERADMIN
+  LEAGUE_ADMIN
+  DELEGATE
+  REFEREE
+  PLAYER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  rut       String   @unique
+  firstName String
+  lastName  String
+  
+  members   Member[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Organization {
+  id               String   @id @default(uuid())
+  name             String
+  slug             String   @unique
+  isActive         Boolean  @default(true)
+  subscriptionPlan String   @default("FREE")
+  
+  members          Member[]
+  tournaments      Tournament[]
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Member {
+  id             String       @id @default(uuid())
+  
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  role           Role         @default(PLAYER)
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  
+  @@unique([userId, organizationId, role])
+}
+
+enum TournamentStatus {
+  DRAFT
+  ONGOING
+  FINISHED
+}
+
+model Tournament {
+  id             String           @id @default(uuid())
+  name           String
+  slug           String           @unique
+  startDate      DateTime?
+  endDate        DateTime?
+  status         TournamentStatus @default(DRAFT)
+  
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
