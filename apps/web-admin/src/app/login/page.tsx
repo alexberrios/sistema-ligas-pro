@@ -76,7 +76,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-4 w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl font-semibold text-white shadow-lg shadow-blue-500/25 hover:-translate-y-1 hover:shadow-blue-500/40 transition-all disabled:opacity-50"
+                className="mt-4 w-full py-3.5 bg-gradient-to-r from-blue-600 to-emerald-600 rounded-xl font-semibold text-white shadow-lg shadow-blue-500/25 hover:-translate-y-1 hover:shadow-blue-500/40 transition-all disabled:opacity-50"
               >
                 {isSubmitting ? 'Iniciando...' : 'Iniciar Sesión'}
               </button>

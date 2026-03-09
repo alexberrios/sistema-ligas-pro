@@ -28,7 +28,7 @@ export default function DashboardLayout({
               <Link href="/tournaments" className="px-4 py-3 rounded-xl transition-all hover:bg-blue-600/20 text-gray-300 hover:text-blue-300 flex items-center gap-2">
                 <span>🏆</span> Mis Torneos
               </Link>
-              <Link href="/teams" className="px-4 py-3 rounded-xl transition-all hover:bg-amber-600/20 text-gray-300 hover:text-amber-300 flex items-center gap-2">
+              <Link href="/teams" className="px-4 py-3 rounded-xl transition-all hover:bg-slate-600/20 text-gray-300 hover:text-slate-300 flex items-center gap-2">
                 <span>🛡️</span> Directorio Equipos
               </Link>
             </>
