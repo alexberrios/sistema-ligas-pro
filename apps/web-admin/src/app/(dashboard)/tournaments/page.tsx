@@ -55,24 +55,26 @@ export default function TournamentsPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end pb-6 relative">
-        <div className="absolute -bottom-px left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent"></div>
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-end pb-8 relative mb-8">
+        <div className="absolute -bottom-px left-0 right-0 h-px bg-gradient-to-r from-emerald-500/50 via-teal-500/50 to-transparent"></div>
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-emerald-900/20 to-transparent -z-10 skew-header mix-blend-overlay"></div>
+        
         <div className="relative z-10 basis-2/3">
-          <div className="inline-block px-3 py-1 mb-4 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wider uppercase">
+          <div className="inline-block px-4 py-1 mb-4 bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-400 text-xs font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(16,185,129,0.2)]">
             Gestión de Competiciones
           </div>
-          <h1 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-emerald-300 to-green-400 tracking-tight">
-            Mis Torneos
+          <h1 className="font-heading text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-emerald-100 to-emerald-400 tracking-normal drop-shadow-md leading-none">
+            MIS TORNEOS
           </h1>
-          <p className="text-gray-400 mt-3 font-light text-lg max-w-2xl leading-relaxed">
+          <p className="text-slate-400 mt-4 font-light text-lg max-w-2xl leading-relaxed">
             Centro de control operativo. Administra fixtures, tablas de posiciones y sanciones de las competiciones activas de tu liga.
           </p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="mt-6 md:mt-0 px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-600 rounded-2xl font-bold text-white shadow-[0_0_30px_-5px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-1 hover:scale-105 transition-all duration-300 ring-1 ring-white/10 flex items-center gap-2"
+          className="mt-8 md:mt-0 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-heading text-2xl tracking-wider text-white shadow-[0_0_30px_-5px_rgba(16,185,129,0.6)] hover:shadow-[0_0_50px_rgba(16,185,129,0.8)] hover:-translate-y-1 transition-all duration-300 skew-card border border-emerald-400/50 flex items-center gap-2"
         >
-          <span>+</span> Crear Torneo
+          <span>+</span> NUEVO TORNEO
         </button>
       </header>
 
@@ -132,39 +134,41 @@ export default function TournamentsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {tournaments.map((tournament) => (
-            <div key={tournament.id} className="relative group rounded-3xl p-[1px] bg-gradient-to-b from-gray-700/50 to-gray-900/50 overflow-hidden hover:from-teal-500/40 hover:to-emerald-500/40 transition-all duration-500 cursor-pointer">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl -z-10 group-hover:bg-teal-500/20 transition-colors duration-500 pointer-events-none"></div>
+            <div key={tournament.id} className="relative group bg-slate-900 border border-slate-700/80 hover:border-emerald-500/50 transition-all duration-500 cursor-pointer overflow-hidden skew-card shadow-xl hover:shadow-[0_0_40px_rgba(16,185,129,0.15)] flex flex-col">
+              {/* Card Background Effects */}
+              <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-emerald-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-400/30 transition-colors"></div>
               
-              <div className="relative h-full bg-gray-900/90 backdrop-blur-2xl rounded-[23px] p-6 flex flex-col justify-between">
-                
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h3 className="text-2xl font-black text-gray-100 group-hover:text-emerald-300 transition-colors duration-300">
-                      {tournament.name}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className={`w-2 h-2 rounded-full shadow-[0_0_10px_rgba(20,184,166,1)] ${tournament.status === 'ONGOING' ? 'bg-teal-500' : tournament.status === 'DRAFT' ? 'bg-amber-500' : 'bg-gray-500'}`}></span>
-                      <p className="text-teal-400 text-sm font-medium">{tournament.status}</p>
+              {/* Dynamic Header Strip */}
+              <div className="h-2 w-full bg-slate-800 group-hover:bg-gradient-to-r group-hover:from-emerald-400 group-hover:to-teal-500 transition-all duration-500"></div>
+
+              <div className="p-6 relative z-10 flex flex-col flex-1 justify-between">
+                <div>
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-2 bg-slate-950/80 px-2.5 py-1 rounded border border-slate-800">
+                      <span className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${tournament.status === 'ONGOING' ? 'bg-emerald-400 text-emerald-400' : tournament.status === 'DRAFT' ? 'bg-amber-400 text-amber-400' : 'bg-slate-400 text-slate-400'}`}></span>
+                      <p className="text-slate-300 text-[10px] font-bold tracking-widest uppercase">{tournament.status}</p>
                     </div>
                   </div>
+                  <h3 className="font-heading text-4xl leading-none font-bold text-slate-100 group-hover:text-white transition-colors drop-shadow-sm mb-4">
+                    {tournament.name}
+                  </h3>
                 </div>
                 
-                <div className="mt-4 flex gap-4">
-                  <div className="bg-gray-950/60 rounded-xl p-4 flex-1 text-center border border-gray-800/50 group-hover:border-teal-500/30 transition-colors shadow-inner relative overflow-hidden">
-                    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
-                    <span className="block text-3xl font-black text-teal-400 drop-shadow-md">0</span>
-                    <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-1 block">Equipos</span>
+                <div className="mt-6 flex gap-3">
+                  <div className="bg-slate-950/60 rounded border border-slate-800/80 p-3 flex-1 text-center relative overflow-hidden group-hover:border-emerald-500/30 transition-colors">
+                    <span className="block font-heading text-4xl text-emerald-400 drop-shadow-md leading-none">0</span>
+                    <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1 block">Klubes</span>
                   </div>
-                  <div className="bg-gray-950/60 rounded-xl p-4 flex-1 text-center border border-gray-800/50 group-hover:border-blue-500/30 transition-colors shadow-inner relative overflow-hidden">
-                    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
-                    <span className="block text-3xl font-black text-blue-400 drop-shadow-md">0</span>
-                    <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-1 block">Fechas</span>
+                  <div className="bg-slate-950/60 rounded border border-slate-800/80 p-3 flex-1 text-center relative overflow-hidden group-hover:border-blue-500/30 transition-colors">
+                    <span className="block font-heading text-4xl text-blue-400 drop-shadow-md leading-none">0</span>
+                    <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1 block">Fechas</span>
                   </div>
                 </div>
                 
-                <div className="w-full mt-6 py-3 bg-gray-800/50 border border-gray-700 text-gray-300 rounded-xl text-sm font-bold hover:bg-teal-500/20 hover:border-teal-500/50 hover:text-teal-300 transition-all text-center flex justify-center items-center gap-2 shadow-lg">
-                  Configurar Torneo
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                <div className="w-full mt-6 py-3 bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 text-sm font-bold uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all text-center flex justify-center items-center gap-2 shadow-lg skew-card">
+                  Gestionar Competición
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                 </div>
               </div>
             </div>
