@@ -317,6 +317,7 @@ export default function TeamsPage() {
                 onChange={(e) => setAssignPlayerForm({ ...assignPlayerForm, position: e.target.value })}
                 className="w-full bg-slate-900 border border-slate-700 text-white rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               >
+                <option value="">Sin Posición</option>
                 <option value="ARQUERO">Arquero</option>
                 <option value="DEFENSA">Defensa</option>
                 <option value="MEDIOCAMPISTA">Mediocampista</option>

@@ -37,6 +37,9 @@ export default function DashboardLayout({
               <Link href="/teams" className="px-5 py-4 rounded-xl transition-all bg-slate-800/40 hover:bg-blue-600/20 border border-transparent hover:border-blue-500/30 text-slate-300 hover:text-blue-300 font-medium flex items-center gap-3 group skew-card">
                 <span className="text-xl group-hover:scale-110 transition-transform">🛡️</span> Clubes
               </Link>
+              <Link href="/players" className="px-5 py-4 rounded-xl transition-all bg-slate-800/40 hover:bg-orange-600/20 border border-transparent hover:border-orange-500/30 text-slate-300 hover:text-orange-300 font-medium flex items-center gap-3 group skew-card">
+                <span className="text-xl group-hover:scale-110 transition-transform">🏃</span> Jugadores Libres
+              </Link>
             </>
           )}
         </nav>

@@ -198,7 +198,7 @@ export default function TournamentsPage() {
                 <div className="mt-6 flex gap-3">
                   <div className="bg-slate-950/60 rounded border border-slate-800/80 p-3 flex-1 text-center relative overflow-hidden group-hover:border-emerald-500/30 transition-colors">
                     <span className="block font-heading text-4xl text-emerald-400 drop-shadow-md leading-none">0</span>
-                    <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1 block">Klubes</span>
+                    <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1 block">Clubes</span>
                   </div>
                   <div className="bg-slate-950/60 rounded border border-slate-800/80 p-3 flex-1 text-center relative overflow-hidden group-hover:border-blue-500/30 transition-colors">
                     <span className="block font-heading text-4xl text-blue-400 drop-shadow-md leading-none">0</span>
