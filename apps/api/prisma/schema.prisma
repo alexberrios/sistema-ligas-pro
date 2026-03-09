@@ -26,6 +26,7 @@ model User {
   lastName  String
   
   members   Member[]
+  player    Player?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -40,6 +41,8 @@ model Organization {
   
   members          Member[]
   tournaments      Tournament[]
+  teams            Team[]
+  players          Player[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -79,6 +82,71 @@ model Tournament {
   organizationId String
   organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   
+  enrolledTeams  TournamentTeam[]
+
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+}
+
+model Team {
+  id              String   @id @default(uuid())
+  name            String
+  logo            String?
+  
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  tournaments     TournamentTeam[]
+  players         TeamPlayer[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Player {
+  id              String   @id @default(uuid())
+  rut             String   @unique
+  firstName       String
+  lastName        String
+  birthDate       DateTime?
+  photo           String?
+
+  userId          String?  @unique
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  teams           TeamPlayer[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model TeamPlayer {
+  id        String   @id @default(uuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  number    Int?
+  position  String?
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([teamId, playerId])
+}
+
+model TournamentTeam {
+  id             String     @id @default(uuid())
+  tournamentId   String
+  tournament     Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  teamId         String
+  team           Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  enrolledAt     DateTime   @default(now())
+  status         String     @default("ACTIVE") // ACTIVE, DISQUALIFIED, etc.
+
+  @@unique([tournamentId, teamId])
 }

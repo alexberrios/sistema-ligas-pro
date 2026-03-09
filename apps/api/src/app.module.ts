@@ -6,9 +6,11 @@ import { OrganizationsModule } from './organizations/organizations.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TournamentsModule } from './tournaments/tournaments.module';
+import { TeamsModule } from './teams/teams.module';
+import { PlayersModule } from './players/players.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, OrganizationsModule, TournamentsModule],
+  imports: [PrismaModule, AuthModule, UsersModule, OrganizationsModule, TournamentsModule, TeamsModule, PlayersModule],
   controllers: [AppController],
   providers: [AppService],
 })

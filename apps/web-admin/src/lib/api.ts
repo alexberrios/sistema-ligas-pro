@@ -30,6 +30,15 @@ export const api = {
     findOne: (id: string) => apiClient.get(`/tournaments/${id}`),
     update: (id: string, data: any) => apiClient.patch(`/tournaments/${id}`, data),
     remove: (id: string) => apiClient.delete(`/tournaments/${id}`)
+  },
+  teams: {
+    create: (data: any) => apiClient.post('/teams', data),
+    findAll: () => apiClient.get('/teams'),
+    assignPlayer: (teamId: string, data: any) => apiClient.post(`/teams/${teamId}/players`, data),
+  },
+  players: {
+    create: (data: any) => apiClient.post('/players', data),
+    findAll: () => apiClient.get('/players'),
   }
 };
 
