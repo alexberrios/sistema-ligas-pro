@@ -1,15 +1,28 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import NextImage from 'next/image';
 import { api } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/api';
 import toast from 'react-hot-toast';
 import { Modal } from '@/components/Modal';
+
+interface TeamPlayer {
+  id: string;
+}
+
+interface PlayerOption {
+  id: string;
+  rut: string;
+  firstName: string;
+  lastName: string;
+}
 
 interface Team {
   id: string;
   name: string;
   logo: string | null;
-  players: any[];
+  players: TeamPlayer[];
 }
 
 export default function TeamsPage() {
@@ -21,7 +34,7 @@ export default function TeamsPage() {
   // Assign Player States
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedTeamForAssign, setSelectedTeamForAssign] = useState<Team | null>(null);
-  const [availablePlayers, setAvailablePlayers] = useState<any[]>([]);
+  const [availablePlayers, setAvailablePlayers] = useState<PlayerOption[]>([]);
   const [assignPlayerForm, setAssignPlayerForm] = useState({ playerId: '', number: '', position: 'DELANTERO' });
 
   const fetchTeams = async () => {
@@ -29,8 +42,8 @@ export default function TeamsPage() {
       setIsLoading(true);
       const { data } = await api.teams.findAll();
       setTeams(data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al cargar equipos');
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, 'Error al cargar equipos'));
     } finally {
       setIsLoading(false);
     }
@@ -67,8 +80,8 @@ export default function TeamsPage() {
       setIsAssignModalOpen(false);
       setAssignPlayerForm({ playerId: '', number: '', position: 'DELANTERO' });
       fetchTeams(); // Refresh to update player count
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al fichar jugador dplicado');
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, 'Error al fichar jugador dplicado'));
     }
   };
 
@@ -131,8 +144,8 @@ export default function TeamsPage() {
       setIsModalOpen(false);
       setNewTeam({ name: '', logo: '' });
       fetchTeams();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al registrar equipo');
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, 'Error al registrar equipo'));
     }
   };
 
@@ -197,7 +210,13 @@ export default function TeamsPage() {
               
               {newTeam.logo && (
                 <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-700 bg-white flex-shrink-0 flex items-center justify-center p-1">
-                  <img src={newTeam.logo} alt="Preview" className="w-full h-full object-contain" />
+                  <NextImage
+                    src={newTeam.logo}
+                    alt="Preview"
+                    fill
+                    sizes="96px"
+                    className="object-contain p-1"
+                  />
                   <button 
                     type="button"
                     onClick={() => setNewTeam({ ...newTeam, logo: '' })}
@@ -245,7 +264,13 @@ export default function TeamsPage() {
                 <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-slate-700 group-hover:border-blue-400/80 shadow-[0_0_0_4px_rgba(15,23,42,1)] relative z-20">
                   {team.logo ? (
-                    <img src={team.logo} alt={team.name} className="w-24 h-24 object-contain" />
+                    <NextImage
+                      src={team.logo}
+                      alt={team.name}
+                      fill
+                      sizes="112px"
+                      className="object-contain p-2"
+                    />
                   ) : (
                     <span className="text-4xl opacity-50">🛡️</span>
                   )}

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { CreateMatchDto, UpdateScoreDto } from './matches/dto/match.dto';
 import { RolesGuard } from './auth/guards/roles.guard';

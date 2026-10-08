@@ -1,9 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, type FormikHelpers } from 'formik';
 import * as Yup from 'yup';
-import api from '@/lib/api';
+import {
+  apiClient,
+  getApiErrorMessage,
+  type RegisterLeaguePayload,
+} from '@/lib/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
@@ -21,9 +25,12 @@ const RegisterSchema = Yup.object().shape({
 export default function RegisterPage() {
   const router = useRouter();
 
-  const handleRegister = async (values: any, { setSubmitting }: any) => {
+  const handleRegister = async (
+    values: RegisterLeaguePayload,
+    { setSubmitting }: FormikHelpers<RegisterLeaguePayload>,
+  ) => {
     try {
-      const response = await api.post('/auth/register-league', values);
+      const response = await apiClient.post('/auth/register-league', values);
       const { access_token, user } = response.data;
       
       Cookies.set('southgo_token', access_token, { expires: 1 });
@@ -31,8 +38,8 @@ export default function RegisterPage() {
       
       toast.success('Liga creada con éxito');
       router.push('/tournaments');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al registrar la liga');
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, 'Error al registrar la liga'));
     } finally {
       setSubmitting(false);
     }

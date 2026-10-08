@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, apiClient } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/api';
 import toast from 'react-hot-toast';
 import { Modal } from '@/components/Modal';
 
@@ -15,6 +16,11 @@ interface Tournament {
   endDate: string | null;
 }
 
+interface TeamOption {
+  id: string;
+  name: string;
+}
+
 export default function TournamentsPage() {
   const router = useRouter();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -25,7 +31,7 @@ export default function TournamentsPage() {
   // Roster states
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [selectedTournamentForEnroll, setSelectedTournamentForEnroll] = useState<Tournament | null>(null);
-  const [availableTeams, setAvailableTeams] = useState<any[]>([]);
+  const [availableTeams, setAvailableTeams] = useState<TeamOption[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState('');
 
   const fetchTournaments = async () => {
@@ -33,8 +39,8 @@ export default function TournamentsPage() {
       setIsLoading(true);
       const { data } = await api.tournaments.findAll();
       setTournaments(data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al cargar torneos');
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, 'Error al cargar torneos'));
     } finally {
       setIsLoading(false);
     }
@@ -52,8 +58,8 @@ export default function TournamentsPage() {
       setIsModalOpen(false);
       setNewTournament({ name: '', slug: '' });
       fetchTournaments(); // recargar
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al crear torneo');
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, 'Error al crear torneo'));
     }
   };
 
@@ -88,8 +94,13 @@ export default function TournamentsPage() {
       setIsEnrollModalOpen(false);
       setSelectedTeamId('');
       fetchTournaments(); // Refresh to update numbers if possible
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al inscribir equipo (probablemente ya inscrito)');
+    } catch (error: unknown) {
+      toast.error(
+        getApiErrorMessage(
+          error,
+          'Error al inscribir equipo (probablemente ya inscrito)',
+        ),
+      );
     }
   };
 

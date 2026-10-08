@@ -9,10 +9,10 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: { members: true },
+      omit: { password: true },
     });
     if (!user) throw new NotFoundException('User not found');
-    const { password, ...result } = user;
-    return result;
+    return user;
   }
 
   async findAll() {
@@ -24,7 +24,7 @@ export class UsersService {
         lastName: true,
         rut: true,
         createdAt: true,
-      }
+      },
     });
   }
 }

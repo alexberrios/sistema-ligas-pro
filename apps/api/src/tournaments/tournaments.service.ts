@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
@@ -12,7 +16,7 @@ export class TournamentsService {
     // Buscar la organización del usuario activo
     const member = await this.prisma.member.findFirst({
       where: { userId },
-      include: { organization: true }
+      include: { organization: true },
     });
 
     if (!member) {
@@ -37,7 +41,7 @@ export class TournamentsService {
 
     return this.prisma.tournament.findMany({
       where: { organizationId: member.organizationId },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -52,13 +56,17 @@ export class TournamentsService {
 
     if (!tournament) throw new NotFoundException('Tournament not found');
     if (member?.organizationId !== tournament.organizationId) {
-       throw new ForbiddenException('You cannot access this tournament');
+      throw new ForbiddenException('You cannot access this tournament');
     }
 
     return tournament;
   }
 
-  async update(id: string, updateTournamentDto: UpdateTournamentDto, userId: string) {
+  async update(
+    id: string,
+    updateTournamentDto: UpdateTournamentDto,
+    userId: string,
+  ) {
     await this.findOne(id, userId); // check permissions
 
     return this.prisma.tournament.update({
@@ -69,27 +77,43 @@ export class TournamentsService {
 
   async remove(id: string, userId: string) {
     await this.findOne(id, userId); // check permissions
-    
+
     return this.prisma.tournament.delete({
       where: { id },
     });
   }
 
-  async enrollTeam(tournamentId: string, enrollTeamDto: EnrollTeamDto, userId: string) {
-    await this.findOne(tournamentId, userId); // Validate tournament access
+  async enrollTeam(
+    tournamentId: string,
+    enrollTeamDto: EnrollTeamDto,
+    userId: string,
+  ) {
+    const tournament = await this.findOne(tournamentId, userId); // Validate tournament access
 
     // Check if team belongs to same organization
     const team = await this.prisma.team.findUnique({
-      where: { id: enrollTeamDto.teamId }
+      where: { id: enrollTeamDto.teamId },
     });
 
     if (!team) throw new NotFoundException('Team not found');
+    if (team.organizationId !== tournament.organizationId) {
+      throw new ForbiddenException(
+        'Team does not belong to the tournament organization',
+      );
+    }
 
-    return this.prisma.tournamentTeam.create({
-      data: {
+    return this.prisma.tournamentTeam.upsert({
+      where: {
+        tournamentId_teamId: {
+          tournamentId,
+          teamId: enrollTeamDto.teamId,
+        },
+      },
+      update: {},
+      create: {
         tournamentId,
-        teamId: enrollTeamDto.teamId
-      }
+        teamId: enrollTeamDto.teamId,
+      },
     });
   }
 
@@ -97,8 +121,8 @@ export class TournamentsService {
     return this.prisma.tournamentTeam.findMany({
       where: { tournamentId },
       include: {
-        team: true
-      }
+        team: true,
+      },
     });
   }
 }

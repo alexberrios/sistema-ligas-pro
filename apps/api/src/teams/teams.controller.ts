@@ -7,6 +7,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { AuthUser } from '../auth/auth-user.type';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('teams')
@@ -15,13 +16,13 @@ export class TeamsController {
 
   @Post()
   @Roles(Role.LEAGUE_ADMIN, Role.SUPERADMIN)
-  create(@Body() createTeamDto: CreateTeamDto, @CurrentUser() user: any) {
+  create(@Body() createTeamDto: CreateTeamDto, @CurrentUser() user: AuthUser) {
     return this.teamsService.create(createTeamDto, user.userId);
   }
 
   @Get()
   @Roles(Role.LEAGUE_ADMIN, Role.SUPERADMIN)
-  findAll(@CurrentUser() user: any) {
+  findAll(@CurrentUser() user: AuthUser) {
     return this.teamsService.findAll(user.userId);
   }
 
@@ -30,7 +31,7 @@ export class TeamsController {
   assignPlayer(
     @Param('id') id: string,
     @Body() assignPlayerDto: AssignPlayerDto,
-    @CurrentUser() user: any
+    @CurrentUser() user: AuthUser,
   ) {
     return this.teamsService.assignPlayer(id, assignPlayerDto, user.userId);
   }

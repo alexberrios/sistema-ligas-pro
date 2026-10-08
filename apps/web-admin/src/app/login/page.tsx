@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, type FormikHelpers } from 'formik';
 import * as Yup from 'yup';
-import api from '@/lib/api';
+import { apiClient, getApiErrorMessage, type LoginPayload } from '@/lib/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
@@ -16,9 +16,12 @@ const LoginSchema = Yup.object().shape({
 export default function LoginPage() {
   const router = useRouter();
 
-  const handleLogin = async (values: any, { setSubmitting }: any) => {
+  const handleLogin = async (
+    values: LoginPayload,
+    { setSubmitting }: FormikHelpers<LoginPayload>,
+  ) => {
     try {
-      const response = await api.post('/auth/login', values);
+      const response = await apiClient.post('/auth/login', values);
       const { access_token, user } = response.data;
       
       Cookies.set('southgo_token', access_token, { expires: 1 });
@@ -32,8 +35,8 @@ export default function LoginPage() {
       } else {
         router.push('/tournaments');
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al iniciar sesión');
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, 'Error al iniciar sesión'));
     } finally {
       setSubmitting(false);
     }

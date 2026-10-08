@@ -11,7 +11,16 @@ import { PlayersModule } from './players/players.module';
 import { MatchesModule } from './matches.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, OrganizationsModule, TournamentsModule, TeamsModule, PlayersModule, MatchesModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    OrganizationsModule,
+    TournamentsModule,
+    TeamsModule,
+    PlayersModule,
+    MatchesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

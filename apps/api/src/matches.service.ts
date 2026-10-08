@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
 import { CreateMatchDto, UpdateScoreDto } from './matches/dto/match.dto';
 
@@ -17,8 +21,8 @@ export class MatchesService {
         tournamentId_teamId: {
           tournamentId: createMatchDto.tournamentId,
           teamId: createMatchDto.homeTeamId,
-        }
-      }
+        },
+      },
     });
 
     const awayEnrolled = await this.prisma.tournamentTeam.findUnique({
@@ -26,20 +30,22 @@ export class MatchesService {
         tournamentId_teamId: {
           tournamentId: createMatchDto.tournamentId,
           teamId: createMatchDto.awayTeamId,
-        }
-      }
+        },
+      },
     });
 
     if (!homeEnrolled || !awayEnrolled) {
-      throw new BadRequestException('Ambos equipos deben estar inscritos en el torneo para programar un partido');
+      throw new BadRequestException(
+        'Ambos equipos deben estar inscritos en el torneo para programar un partido',
+      );
     }
 
     return this.prisma.match.create({
       data: createMatchDto,
       include: {
         homeTeam: true,
-        awayTeam: true
-      }
+        awayTeam: true,
+      },
     });
   }
 
@@ -48,17 +54,19 @@ export class MatchesService {
       where: { tournamentId },
       include: {
         homeTeam: true,
-        awayTeam: true
+        awayTeam: true,
       },
       orderBy: {
-        datetime: 'asc'
-      }
+        datetime: 'asc',
+      },
     });
   }
 
   async updateScore(matchId: string, updateScoreDto: UpdateScoreDto) {
-    const match = await this.prisma.match.findUnique({ where: { id: matchId } });
-    
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+    });
+
     if (!match) {
       throw new NotFoundException('Partido no encontrado');
     }
@@ -67,12 +75,12 @@ export class MatchesService {
       where: { id: matchId },
       data: {
         ...updateScoreDto,
-        status: updateScoreDto.status || 'FINISHED'
+        status: updateScoreDto.status || 'FINISHED',
       },
       include: {
         homeTeam: true,
-        awayTeam: true
-      }
+        awayTeam: true,
+      },
     });
   }
 }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { AssignPlayerDto } from './dto/assign-player.dto';
@@ -35,14 +39,18 @@ export class TeamsService {
       where: { organizationId: member.organizationId },
       include: {
         players: {
-          include: { player: true } // Trae la info del jugador al devolver el equipo
-        }
+          include: { player: true }, // Trae la info del jugador al devolver el equipo
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async assignPlayer(teamId: string, assignPlayerDto: AssignPlayerDto, userId: string) {
+  async assignPlayer(
+    teamId: string,
+    assignPlayerDto: AssignPlayerDto,
+    userId: string,
+  ) {
     const member = await this.prisma.member.findFirst({
       where: { userId },
     });

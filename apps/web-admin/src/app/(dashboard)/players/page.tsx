@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/api';
 import toast from 'react-hot-toast';
 import { Modal } from '@/components/Modal';
 
@@ -24,8 +25,8 @@ export default function PlayersPage() {
       setIsLoading(true);
       const { data } = await api.players.findAll();
       setPlayers(data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al cargar jugadores');
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, 'Error al cargar jugadores'));
     } finally {
       setIsLoading(false);
     }
@@ -43,8 +44,13 @@ export default function PlayersPage() {
       setIsModalOpen(false);
       setNewPlayer({ rut: '', firstName: '', lastName: '', photo: '' });
       fetchPlayers();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al registrar jugador. Puede que el RUT ya exista.');
+    } catch (error: unknown) {
+      toast.error(
+        getApiErrorMessage(
+          error,
+          'Error al registrar jugador. Puede que el RUT ya exista.',
+        ),
+      );
     }
   };
 

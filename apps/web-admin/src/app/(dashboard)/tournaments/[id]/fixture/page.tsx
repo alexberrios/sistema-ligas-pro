@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
 import { apiClient } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/api';
 
 interface Team {
   id: string;
@@ -32,6 +34,7 @@ interface Tournament {
 export default function FixturePage() {
   const params = useParams();
   const router = useRouter();
+  const tournamentId = Array.isArray(params.id) ? params.id[0] : params.id;
   const [matches, setMatches] = useState<Match[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -40,26 +43,27 @@ export default function FixturePage() {
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [params.id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    if (!tournamentId) return;
     try {
       const [matchesRes, teamsRes, tourneyRes] = await Promise.all([
-        apiClient.get(`/matches/tournament/${params.id}`),
-        apiClient.get(`/teams/tournament/${params.id}`),
-        apiClient.get(`/tournaments/${params.id}`),
+        apiClient.get(`/matches/tournament/${tournamentId}`),
+        apiClient.get(`/teams/tournament/${tournamentId}`),
+        apiClient.get(`/tournaments/${tournamentId}`),
       ]);
       setMatches(matchesRes.data);
       setTeams(teamsRes.data);
       setTournament(tourneyRes.data);
-    } catch (error) {
+    } catch {
       toast.error('Error al cargar datos del Fixture');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [tournamentId]);
+
+  useEffect(() => {
+    void fetchData();
+  }, [fetchData]);
 
   const createMatchFormik = useFormik({
     initialValues: {
@@ -77,18 +81,23 @@ export default function FixturePage() {
       stage: Yup.string(),
     }),
     onSubmit: async (values, { setSubmitting, resetForm }) => {
+      if (!tournamentId) {
+        toast.error('No se encontró el torneo');
+        setSubmitting(false);
+        return;
+      }
       try {
         await apiClient.post('/matches', {
-          tournamentId: params.id,
+          tournamentId,
           ...values,
           datetime: new Date(values.datetime).toISOString(),
         });
         toast.success('Partido programado exitosamente');
         setIsMatchModalOpen(false);
         resetForm();
-        fetchData();
-      } catch (error: any) {
-        toast.error(error.response?.data?.message || 'Error al programar partido');
+        await fetchData();
+      } catch (error: unknown) {
+        toast.error(getApiErrorMessage(error, 'Error al programar partido'));
       } finally {
         setSubmitting(false);
       }
@@ -108,8 +117,8 @@ export default function FixturePage() {
         await apiClient.patch(`/matches/${selectedMatch.id}/score`, values);
         toast.success('Marcador actualizado');
         setIsScoreModalOpen(false);
-        fetchData();
-      } catch (error) {
+        await fetchData();
+      } catch {
         toast.error('Error al actualizar marcador');
       } finally {
         setSubmitting(false);
@@ -174,7 +183,17 @@ export default function FixturePage() {
               {/* Home */}
               <div className="flex flex-col items-center gap-3 w-1/3">
                 <div className="w-16 h-16 bg-slate-800 rounded-full border border-slate-600 flex items-center justify-center p-2">
-                  {match.homeTeam.logo ? <img src={match.homeTeam.logo} className="w-full h-full object-contain" /> : '🛡️'}
+                  {match.homeTeam.logo ? (
+                    <Image
+                      src={match.homeTeam.logo}
+                      alt={`Escudo ${match.homeTeam.name}`}
+                      width={56}
+                      height={56}
+                      className="object-contain"
+                    />
+                  ) : (
+                    '🛡️'
+                  )}
                 </div>
                 <span className="font-heading text-xl text-center leading-none text-slate-200">{match.homeTeam.name}</span>
               </div>
@@ -196,7 +215,17 @@ export default function FixturePage() {
               {/* Away */}
               <div className="flex flex-col items-center gap-3 w-1/3">
                 <div className="w-16 h-16 bg-slate-800 rounded-full border border-slate-600 flex items-center justify-center p-2">
-                  {match.awayTeam.logo ? <img src={match.awayTeam.logo} className="w-full h-full object-contain" /> : '🛡️'}
+                  {match.awayTeam.logo ? (
+                    <Image
+                      src={match.awayTeam.logo}
+                      alt={`Escudo ${match.awayTeam.name}`}
+                      width={56}
+                      height={56}
+                      className="object-contain"
+                    />
+                  ) : (
+                    '🛡️'
+                  )}
                 </div>
                 <span className="font-heading text-xl text-center leading-none text-slate-200">{match.awayTeam.name}</span>
               </div>

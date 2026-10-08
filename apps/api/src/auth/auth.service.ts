@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -10,20 +14,22 @@ import { Role } from '@prisma/client';
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) {}
 
   async registerLeague(dto: RegisterLeagueDto) {
     // Check if user or organization already exists
     const existingUser = await this.prisma.user.findFirst({
-      where: { OR: [{ email: dto.email }, { rut: dto.rut }] }
+      where: { OR: [{ email: dto.email }, { rut: dto.rut }] },
     });
-    if (existingUser) throw new ConflictException('User with that email or rut already exists');
+    if (existingUser)
+      throw new ConflictException('User with that email or rut already exists');
 
     const existingOrg = await this.prisma.organization.findUnique({
-      where: { slug: dto.organizationSlug }
+      where: { slug: dto.organizationSlug },
     });
-    if (existingOrg) throw new ConflictException('Organization slug already taken');
+    if (existingOrg)
+      throw new ConflictException('Organization slug already taken');
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
@@ -33,7 +39,7 @@ export class AuthService {
         data: {
           name: dto.organizationName,
           slug: dto.organizationSlug,
-        }
+        },
       });
 
       const user = await tx.user.create({
@@ -43,7 +49,7 @@ export class AuthService {
           rut: dto.rut,
           firstName: dto.firstName,
           lastName: dto.lastName,
-        }
+        },
       });
 
       await tx.member.create({
@@ -51,15 +57,20 @@ export class AuthService {
           userId: user.id,
           organizationId: org.id,
           role: Role.LEAGUE_ADMIN,
-        }
+        },
       });
 
-      const payload = { sub: user.id, email: user.email, role: Role.LEAGUE_ADMIN, organizationId: org.id };
-      
+      const payload = {
+        sub: user.id,
+        email: user.email,
+        role: Role.LEAGUE_ADMIN,
+        organizationId: org.id,
+      };
+
       return {
         access_token: this.jwtService.sign(payload),
         user: { id: user.id, email: user.email, role: Role.LEAGUE_ADMIN },
-        organization: { id: org.id, slug: org.slug }
+        organization: { id: org.id, slug: org.slug },
       };
     });
   }
@@ -67,7 +78,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
-      include: { members: true }
+      include: { members: true },
     });
 
     if (!user) throw new UnauthorizedException('Invalid credentials');
@@ -83,7 +94,7 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email, role, organizationId };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: user.id, email: user.email, firstName: user.firstName, role }
+      user: { id: user.id, email: user.email, firstName: user.firstName, role },
     };
   }
 }

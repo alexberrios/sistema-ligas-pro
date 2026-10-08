@@ -3,11 +3,19 @@
 :root {
   --background: #020617; /* slate-950 */
   --foreground: #f8fafc; /* slate-50 */
+  --azul-rey-aj: #18338C;
+  --verde-suave: #1B9E4B;
+  --plateado: #A7A7AF;
+  --blanco: #FFFFFF;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-azul-rey-aj: var(--azul-rey-aj);
+  --color-verde-suave: var(--verde-suave);
+  --color-plateado: var(--plateado);
+  --color-blanco: var(--blanco);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-heading: var(--font-teko), ui-sans-serif, system-ui, sans-serif;
 }
